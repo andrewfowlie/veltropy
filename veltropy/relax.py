@@ -8,6 +8,7 @@ from scipy.special import gamma
 from scipy.special import beta as beta_function
 from scipy.misc import factorial, comb
 from numpy import exp, prod, log
+from warnings import warn
 
 from .partition import partition
 from .memoize import LookUpTable
@@ -24,8 +25,11 @@ class Relax(Poisson):
         @param beta Number of trials in multiomial distribution
         @param signal Events function
         """
-        self.beta = beta if beta > 1. else 1.
-        self.flatten = beta if beta < 1. else None
+        if beta < 1.:
+            raise ValueError("beta should be >= 1. beta = {}".format(beta))
+        if not isinstance(beta, int):
+            warn("beta was not an integer. beta = {}".format(beta))
+        self.beta = beta
         super(Relax, self).__init__(signal, velocity_dist, isotropic)
 
     @LookUpTable
@@ -121,27 +125,17 @@ class Relax(Poisson):
         assert loglike <= 0.
         return loglike
 
-    def set_velocity_dist(self, velocity_dist):
-        """
-        Set the velocity distribution, taking special care of analytic
-        continuation for beta < 1.
-        """
-        super(Relax, self).set_velocity_dist(velocity_dist)
-
-        if self.flatten is not None:
-            self.default = self.default**self.flatten
-            norm = self.dtrapz(self.default)
-            self.default /= norm
-
 if __name__ == "__main__":
 
     from .events import EventsAtVelocity
 
     SIGMA = 2E-46
-    MASS = 50.
+    MASS = 10.
     BETA = 1.
 
     SIGNAL = EventsAtVelocity(MASS)
 
-    RELAX = Relax(BETA, SIGNAL)
+    RELAX = Relax(BETA, SIGNAL, isotropic=False)
     print RELAX(SIGMA)
+    print RELAX.chi_squared_limit()
+
