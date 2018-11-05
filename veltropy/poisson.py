@@ -8,6 +8,7 @@ import numpy as np
 from numpy import trapz, exp, log
 from scipy.stats import poisson, chi2
 from scipy.optimize import bisect, minimize
+from warnings import warn
 
 from .memoize import LookUpTable, erase_lookup_tables
 from .velocity import MB
@@ -25,7 +26,7 @@ def safe_bisect(crossing, lower, upper, **kwargs):
         except ValueError:
             lower -= 5
             upper += 5
-    raise RuntimeError()
+    raise RuntimeError("could not find root")
 
 
 class Poisson(object):
@@ -183,6 +184,7 @@ class Poisson(object):
         try:
             log_limit = safe_bisect(crossing, *self.BOUNDS, rtol=1E-6, xtol=1E-6)
         except RuntimeError:
+            warn("could not find upper limit; assume inf")
             return np.inf
 
         return exp(log_limit)
