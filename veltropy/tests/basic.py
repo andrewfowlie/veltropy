@@ -66,7 +66,7 @@ class Test(unittest.TestCase):
         """
         Check relaxed likelihood
         """
-        beta = 1.
+        beta = 1
         relax = Relax(beta, self.signal)
         expected = 59.3135202478
         found = float(relax(SIGMA))
@@ -76,7 +76,7 @@ class Test(unittest.TestCase):
         """
         Check relaxed likelihood for anisotropic distributions
         """
-        beta = 1.
+        beta = 1
         relax = Relax(beta, self.signal, isotropic=False)
         expected = 11.2528301232
         found = float(relax(SIGMA))
@@ -86,7 +86,7 @@ class Test(unittest.TestCase):
         """
         Check relaxed likelihood + parametric uncertainty
         """
-        beta = 1.
+        beta = 1
         shape = Shape(Relax(beta, self.signal))
         expected = 57.8961281542
         found = float(shape(SIGMA))
