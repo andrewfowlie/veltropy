@@ -85,6 +85,23 @@ class MB(VelocityFunction):
         pdf /= angular * self._norm
         return pdf
 
+class Uniform(VelocityFunction):
+    """
+    Uniform distribution. This is in the galactic frame.
+    """
+    def __init__(self, v_escape=550.):
+        self.v_escape = v_escape
+
+    @property
+    def max_v(self):
+        return self.v_escape
+
+    def __call__(self, velocity, cos_theta=None):
+        angular = 2. if cos_theta is not None else 1.
+        pdf = np.ones_like(velocity)
+        pdf[velocity > self.v_escape] = 0.
+        pdf /= angular * self.v_escape
+        return pdf
 
 if __name__ == "__main__":
     D = MB()
