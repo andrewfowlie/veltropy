@@ -131,8 +131,10 @@ class Poisson(object):
         guess = self.sigma * observed_signal / self.signal(self.sigma)
 
         if guess == 0.:
+            warn("guess was zero; assume limit 0")
             return 0.
         elif np.isinf(guess) or np.isnan(guess):
+            warn("guess was inf; assume limit inf")
             return np.inf
 
         def target(log_sigma):
@@ -145,6 +147,7 @@ class Poisson(object):
         try:
             log_sigma = minimize(target, log(guess), tol=1E-6, bounds=None, method="Powell").x
         except ValueError:
+            warn("could not find limit; assume limit inf")
             return np.inf
 
         sigma = exp(log_sigma)
@@ -160,6 +163,7 @@ class Poisson(object):
         try:
             return self.sigma * limit / self.signal(self.sigma)
         except ZeroDivisionError:
+            warn("signal was zero; assume limit inf")
             return np.inf
 
     @LookUpTable
@@ -170,6 +174,7 @@ class Poisson(object):
         @returns Upper limit on scattering cross section from chi-squared
         """
         if np.isinf(self.best_fit_sigma):
+            warn("best-fit inf; assume limit inf")
             return np.inf
 
         critical = chi2.isf(2. * (1. - level), 1)  # 1/2 chi-squared with 1 dof

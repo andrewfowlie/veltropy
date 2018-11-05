@@ -60,6 +60,7 @@ class Relax(Poisson):
         lognorm = log(norm)
         jensen = -self.signal(sigma) / self.beta - self._shift(sigma)
         if not lognorm >= jensen:
+            warn("using jensen inequality")
             lognorm = jensen
         return lognorm
 
